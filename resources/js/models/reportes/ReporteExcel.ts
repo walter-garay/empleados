@@ -1,6 +1,6 @@
-import type { IReporte } from '../../interfaces/IReporte';
+import { Reporte } from './Reporte';
 
-export class ReporteExcel implements IReporte {
+export class ReporteExcel extends Reporte {
     generar_reporte(data: any[]): void {
         import('xlsx').then((XLSX) => {
             const worksheet = XLSX.utils.json_to_sheet(data);

@@ -20,7 +20,7 @@
                                 <span class="font-semibold text-green-600">{{ tipo.icono }}</span>
                             </div>
                             <div>
-                                <p class="font-semibold">{{ tipo.nombre }}</p>
+                                <p class="font-semibold text-gray-400">{{ tipo.nombre }}</p>
                                 <p class="text-sm text-gray-500">{{ tipo.descripcion }}</p>
                             </div>
                         </div>
@@ -38,6 +38,18 @@
                     <span v-else>Enviar notificación</span>
                 </Button>
             </DialogFooter>
+            <div v-if="resultado" class="mt-4 text-center">
+                <div
+                    :class="{
+                        'bg-green-100 text-green-700': resultado.success,
+                        'bg-red-100 text-red-700': !resultado.success,
+                    }"
+                    class="rounded p-3"
+                >
+                    <span v-if="resultado.success"> ✅ Notificación {{ resultado.tipo }} enviada exitosamente. </span>
+                    <span v-else> ❌ Error enviando notificación {{ resultado.tipo }}. </span>
+                </div>
+            </div>
         </DialogContent>
     </Dialog>
 </template>
@@ -54,7 +66,7 @@ import DialogTitle from '@/components/ui/dialog/DialogTitle.vue';
 import { NotificacionCorreo } from '@/models/notificaciones/NotificacionCorreo';
 import { NotificacionSMS } from '@/models/notificaciones/NotificacionSMS';
 import type { Empleado } from '@/types/empleado';
-import { defineEmits, defineProps, ref } from 'vue';
+import { defineEmits, defineProps, ref, watch } from 'vue';
 
 const props = defineProps<{
     modelValue: boolean;
@@ -70,6 +82,7 @@ const emit = defineEmits<{
 
 const tipoSeleccionado = ref<any>(null);
 const enviando = ref(false);
+const resultado = ref<null | { success: boolean; tipo: string }>(null);
 
 const tiposNotificacion = [
     {
@@ -100,17 +113,26 @@ const enviarNotificacion = async () => {
     try {
         const mensaje = `Su pago de $${props.monto.toFixed(2)} ha sido procesado exitosamente con ${props.metodoPago}.`;
         const notificacion = new tipoSeleccionado.value.clase(props.empleado.id, mensaje);
-        const resultado = await notificacion.enviarNotificacion();
+        const res = await notificacion.enviarNotificacion();
 
-        emit('notificacionEnviada', resultado, tipoSeleccionado.value.nombre);
-        emit('update:modelValue', false);
+        emit('notificacionEnviada', res, tipoSeleccionado.value.nombre);
+        resultado.value = { success: res, tipo: tipoSeleccionado.value.nombre };
     } catch (error) {
         console.error('Error enviando notificación:', error);
         emit('notificacionEnviada', false, tipoSeleccionado.value.nombre);
+        resultado.value = { success: false, tipo: tipoSeleccionado.value.nombre };
     } finally {
         enviando.value = false;
     }
 };
+
+watch(
+    () => [props.empleado, props.modelValue],
+    () => {
+        tipoSeleccionado.value = null;
+        enviando.value = false;
+    },
+);
 </script>
 
 <style scoped></style>

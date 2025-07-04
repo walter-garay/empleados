@@ -20,7 +20,7 @@
                                 <span class="font-semibold text-blue-600">{{ metodo.icono }}</span>
                             </div>
                             <div>
-                                <p class="font-semibold">{{ metodo.nombre }}</p>
+                                <p class="font-semibold text-gray-400">{{ metodo.nombre }}</p>
                                 <p class="text-sm text-gray-500">{{ metodo.descripcion }}</p>
                             </div>
                         </div>
@@ -56,6 +56,18 @@
         :monto="monto"
         @notificacion-enviada="onNotificacionEnviada"
     />
+    <div v-if="notificacionResultado" class="mt-4 text-center">
+        <div
+            :class="{
+                'bg-green-100 text-green-700': notificacionResultado.success,
+                'bg-red-100 text-red-700': !notificacionResultado.success,
+            }"
+            class="rounded p-3"
+        >
+            <span v-if="notificacionResultado.success"> ✅ Notificación {{ notificacionResultado.tipo }} enviada exitosamente. </span>
+            <span v-else> ❌ Error enviando notificación {{ notificacionResultado.tipo }}. </span>
+        </div>
+    </div>
 </template>
 
 <script lang="ts" setup>
@@ -71,7 +83,7 @@ import { PagoPaypal } from '@/models/pagos/PagoPaypal';
 import { PagoTarjeta } from '@/models/pagos/PagoTarjeta';
 import { PagoYape } from '@/models/pagos/PagoYape';
 import type { Empleado } from '@/types/empleado';
-import { defineEmits, defineProps, ref } from 'vue';
+import { defineEmits, defineProps, ref, watch } from 'vue';
 import NotificacionModal from './NotificacionModal.vue';
 
 const props = defineProps<{
@@ -90,6 +102,7 @@ const procesando = ref(false);
 const pagoCompletado = ref(false);
 const metodoCompletado = ref('');
 const notificacionModalAbierto = ref(false);
+const notificacionResultado = ref<null | { success: boolean; tipo: string }>(null);
 
 const metodosPago = [
     {
@@ -147,13 +160,25 @@ const abrirNotificacionModal = () => {
 };
 
 const onNotificacionEnviada = (success: boolean, tipo: string) => {
+    notificacionResultado.value = { success, tipo };
     if (success) {
         console.log(`Notificación ${tipo} enviada exitosamente`);
-        emit('update:modelValue', false);
     } else {
         console.log(`Error enviando notificación ${tipo}`);
     }
 };
+
+watch(
+    () => [props.empleado, props.modelValue],
+    () => {
+        metodoSeleccionado.value = null;
+        procesando.value = false;
+        pagoCompletado.value = false;
+        metodoCompletado.value = '';
+        notificacionModalAbierto.value = false;
+        notificacionResultado.value = null;
+    },
+);
 </script>
 
 <style scoped></style>

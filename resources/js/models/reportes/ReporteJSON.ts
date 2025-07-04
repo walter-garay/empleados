@@ -1,6 +1,7 @@
 import type { IReporte } from '../../interfaces/IReporte';
+import { Reporte } from './Reporte';
 
-export class ReporteJSON implements IReporte {
+export class ReporteJSON extends Reporte implements IReporte {
     generar_reporte(data: any[]): void {
         const json = JSON.stringify(data, null, 2);
         const now = new Date();

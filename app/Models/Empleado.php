@@ -18,6 +18,8 @@ class Empleado extends Model
         'nombre',
         'fecha_ingreso',
         'tipo',
+        'salario_mensual',
+        'tarifa_contrato',
     ];
 
     // Relación con el modelo Salario

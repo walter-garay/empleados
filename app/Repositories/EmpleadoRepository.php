@@ -5,30 +5,45 @@ namespace App\Repositories;
 
 use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Collection;
+use App\Contracts\Repositories\EmpleadoRepositoryInterface;
 
-class EmpleadoRepository
+class EmpleadoRepository implements EmpleadoRepositoryInterface
 {
     /**
-     * Obtener todos los empleados, con relaciones opcionales.
+     * Obtener todos los empleados, con relaciones y filtros opcionales.
      *
      * @param array $relations
-     * @return Collection
+     * @param array $filters
+     * @return Collection<Empleado>
      */
-    public function getAll(array $relations = []): Collection
+    public function getAll(array $relations = [], array $filters = []): Collection
     {
-        return Empleado::with($relations)->get();
+        $query = Empleado::with($relations);
+        foreach ($filters as $field => $value) {
+            if (!is_null($value)) {
+                $query->where($field, $value);
+            }
+        }
+        return $query->get();
     }
 
     /**
-     * Obtener un empleado por su ID, con relaciones opcionales.
+     * Obtener un empleado por su ID, con relaciones y filtros opcionales.
      *
      * @param int $id
      * @param array $relations
+     * @param array $filters
      * @return Empleado|null
      */
-    public function getById(int $id, array $relations = []): ?Empleado
+    public function getById(int $id, array $relations = [], array $filters = []): ?Empleado
     {
-        return Empleado::with($relations)->find($id);
+        $query = Empleado::with($relations)->where('id', $id);
+        foreach ($filters as $field => $value) {
+            if (!is_null($value)) {
+                $query->where($field, $value);
+            }
+        }
+        return $query->first();
     }
 
     /**
@@ -72,4 +87,5 @@ class EmpleadoRepository
         }
         return false;
     }
+
 }

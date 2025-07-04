@@ -1,12 +1,13 @@
 import type { IReporte } from '../../interfaces/IReporte';
+import { Reporte } from './Reporte';
 
-export class ReportePDF implements IReporte {
+export class ReportePDF extends Reporte implements IReporte {
     generar_reporte(data: any[]): void {
         let contenido = 'Lista de empleados\n\n';
         if (data.length === 0) {
             contenido += 'No hay empleados para mostrar.';
         } else {
-            data.forEach((empleado, idx) => {
+            data.forEach((empleado: any, idx: number) => {
                 contenido += `Empleado #${idx + 1}\n`;
                 Object.entries(empleado).forEach(([key, value]) => {
                     if (Array.isArray(value)) return; // Ignorar relaciones

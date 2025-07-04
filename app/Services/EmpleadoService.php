@@ -2,17 +2,30 @@
 
 namespace App\Services;
 
-use App\Repositories\EmpleadoRepository;
+use App\Contracts\Repositories\EmpleadoRepositoryInterface;
+use App\Contracts\Services\CalculadorSalarioInterface;
+use App\Contracts\Services\ServicioNotificacionInterface;
+use App\Contracts\Services\ReporteServiceInterface;
 use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Collection;
 
 class EmpleadoService
 {
-    protected EmpleadoRepository $empleadoRepository;
+    protected EmpleadoRepositoryInterface $empleadoRepository;
+    protected CalculadorSalarioInterface $calculadorSalario;
+    protected ServicioNotificacionInterface $servicioNotificacion;
+    protected ReporteServiceInterface $reporteService;
 
-    public function __construct(EmpleadoRepository $empleadoRepository)
-    {
+    public function __construct(
+        EmpleadoRepositoryInterface $empleadoRepository,
+        CalculadorSalarioInterface $calculadorSalario,
+        ServicioNotificacionInterface $servicioNotificacion,
+        ReporteServiceInterface $reporteService
+    ) {
         $this->empleadoRepository = $empleadoRepository;
+        $this->calculadorSalario = $calculadorSalario;
+        $this->servicioNotificacion = $servicioNotificacion;
+        $this->reporteService = $reporteService;
     }
 
     /**
@@ -71,4 +84,6 @@ class EmpleadoService
     {
         return $this->empleadoRepository->delete($id);
     }
+
+    // Aquí puedes agregar métodos de negocio que usen los contratos
 }

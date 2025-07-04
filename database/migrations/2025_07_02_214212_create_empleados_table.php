@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('nombre');
             $table->date('fecha_ingreso');
             $table->string('tipo'); // tipo no puede ser null
+            $table->decimal('salario_mensual', 10, 2)->nullable();
+            $table->decimal('tarifa_contrato', 10, 2)->nullable();
         });
     }
 
